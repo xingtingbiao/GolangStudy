@@ -96,13 +96,13 @@ func testSelect3() {
 	for i := 0; i < 20; i++ {
 		select {
 		case e, ok := <-ch1:
-			fmt.Printf("step%d: %d  %s\n", i, e, ok)
+			fmt.Printf("step%d: %d  %d\n", i, e, ok)
 		case e, ok := <-ch2:
-			fmt.Printf("step%d: %d  %s\n", i, e, ok)
+			fmt.Printf("step%d: %d  %d\n", i, e, ok)
 		case e, ok := <-ch3:
-			fmt.Printf("step%d: %d  %s\n", i, e, ok)
+			fmt.Printf("step%d: %d  %d\n", i, e, ok)
 		case e, ok := <-ch4:
-			fmt.Printf("step%d: %d  %s\n", i, e, ok)
+			fmt.Printf("step%d: %d  %d\n", i, e, ok)
 		default:
 			fmt.Println("No Data!")
 		}
