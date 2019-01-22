@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func main() {
 	//sum(1, 2, 5, 7)
@@ -8,6 +11,9 @@ func main() {
 	// sum([]int{1, 3, 5, 7, 9}...)
 	//testIntSeq()
 	//fmt.Println(fact(7))
+	//testWorker()
+	//testPingPang()
+	testSelect()
 }
 
 // 可变参数的函数
@@ -46,4 +52,65 @@ func fact(n int) int {
 		return 2
 	}
 	return n * fact(n-1)
+}
+
+// chan的同步实例
+func worker(done chan bool) {
+	fmt.Println("working...")
+	time.Sleep(time.Second)
+	fmt.Println("done")
+	done <- true
+}
+
+func testWorker() {
+	//这里设不设置长度为1对效果不影响, 不设置两边都阻塞, 设置的话, 下面阻塞, 上面不阻塞
+	done := make(chan bool, 1)
+	// done := make(chan bool)
+	go worker(done)
+	<-done
+}
+
+// chan的路线实例, 具有传导性
+func ping(pings chan<- string, msg string) {
+	pings <- msg
+}
+
+func pong(pings <-chan string, pongs chan<- string) {
+	pongs <- <-pings
+}
+
+func testPingPang() {
+	pings := make(chan string, 1)
+	pongs := make(chan string, 1)
+	ping(pings, "passed message.")
+	pong(pings, pongs)
+	fmt.Println(<-pongs)
+}
+
+// 每个通道将在一段时间后开始接收值，以模拟阻塞在并发goroutines中执行的RPC操作。
+// 我们将使用select同时等待这两个值，在每个值到达时打印它们。
+func testSelect() {
+	ch1 := make(chan string)
+	ch2 := make(chan string)
+	go func() {
+		time.Sleep(time.Second)
+		ch1 <- "one"
+		// close(ch1)
+	}()
+
+	go func() {
+		time.Sleep(time.Second * 2)
+		ch2 <- "two"
+		// close(ch2)
+	}()
+
+	// 注意这里的ok是判断通道是否关闭掉了
+	for i := 0; i < 3; i++ {
+		select {
+		case msg1, ok := <-ch1:
+			fmt.Println(msg1, ok)
+		case msg2, ok := <-ch2:
+			fmt.Println(msg2, ok)
+		}
+	}
 }
