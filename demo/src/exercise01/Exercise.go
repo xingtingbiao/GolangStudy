@@ -13,7 +13,9 @@ func main() {
 	//fmt.Println(fact(7))
 	//testWorker()
 	//testPingPang()
-	testSelect()
+	//testSelect()
+	//testTimeOut()
+	testSelect2()
 }
 
 // 可变参数的函数
@@ -112,5 +114,59 @@ func testSelect() {
 		case msg2, ok := <-ch2:
 			fmt.Println(msg2, ok)
 		}
+	}
+}
+
+// 超时练习
+func testTimeOut() {
+	c1 := make(chan string, 1)
+	c2 := make(chan string, 1)
+	go func() {
+		time.Sleep(time.Second * 3)
+		c1 <- "result 1"
+	}()
+	select {
+	case res := <-c1:
+		fmt.Println(res)
+	case <-time.After(time.Second):
+		fmt.Println("timeout 1")
+	}
+
+	go func() {
+		time.Sleep(time.Second)
+		c2 <- "result 2"
+	}()
+	select {
+	case res := <-c1:
+		fmt.Println(res)
+	case <-time.After(time.Second * 3):
+		fmt.Println("timeout 2")
+	}
+}
+
+// default实现非阻塞通道
+func testSelect2() {
+	messages := make(chan string)
+	signals := make(chan bool)
+	select {
+	case msg := <-messages:
+		fmt.Println("received message", msg)
+	default:
+		fmt.Println("no message received")
+	}
+	msg := "hi"
+	select {
+	case messages <- msg:
+		fmt.Println("sent message", msg)
+	default:
+		fmt.Println("no message sent")
+	}
+	select {
+	case msg := <-messages:
+		fmt.Println("received message", msg)
+	case sig := <-signals:
+		fmt.Println("received signal", sig)
+	default:
+		fmt.Println("no activity")
 	}
 }
