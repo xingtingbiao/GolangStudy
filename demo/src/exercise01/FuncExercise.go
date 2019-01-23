@@ -82,7 +82,7 @@ func Filter(vs []string, f func(string) bool) []string {
 	return s
 }
 
-// map 操作
+// map 操作 类似java或者python的高阶函数
 func Map(vs []string, f func(string) string) []string {
 	for i, v := range vs {
 		vs[i] = f(v)
@@ -90,7 +90,7 @@ func Map(vs []string, f func(string) string) []string {
 	return vs
 }
 
-// reduce操作
+// reduce操作 类似java或者python的高阶函数
 func Reduce(vs []string, f func(string, string) string) string {
 	var s string
 	for i := 0; i < len(vs); i++ {
