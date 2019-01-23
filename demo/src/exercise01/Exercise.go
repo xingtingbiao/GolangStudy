@@ -15,7 +15,9 @@ func main() {
 	//testPingPang()
 	//testSelect()
 	//testTimeOut()
-	testSelect2()
+	//testSelect2()
+	//testCloseChan()
+	//testChanRange()
 }
 
 // 可变参数的函数
@@ -169,4 +171,46 @@ func testSelect2() {
 	default:
 		fmt.Println("no activity")
 	}
+}
+
+// 关闭通道练习
+func testCloseChan() {
+	jobs := make(chan int, 5)
+	done := make(chan bool)
+	// 这里的ok只有在通道关闭的时候才会为FALSE
+	go func() {
+		for true {
+			j, ok := <-jobs
+			if ok {
+				fmt.Println("received job", j)
+			} else {
+				fmt.Println("received all jobs")
+				done <- true
+				return
+			}
+		}
+	}()
+
+	for i := 0; i < 3; i++ {
+		jobs <- i
+		fmt.Println("sent job", i)
+	}
+	close(jobs)
+	fmt.Println("sent all jobs")
+	<-done
+}
+
+// 通道范围实例
+func testChanRange() {
+	queue := make(chan string, 2)
+	queue <- "one"
+	queue <- "two"
+	close(queue)
+	for e := range queue {
+		fmt.Println(e)
+	}
+	ints := make(chan int)
+	close(ints)
+	// 注意这里依然可以执行, 但是返回空值
+	fmt.Println(<-ints)
 }
