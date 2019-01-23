@@ -18,6 +18,9 @@ func main() {
 	//testSelect2()
 	//testCloseChan()
 	//testChanRange()
+	//testTimer()
+	//testTicker()
+	//testChanRange2()
 }
 
 // 可变参数的函数
@@ -213,4 +216,56 @@ func testChanRange() {
 	close(ints)
 	// 注意这里依然可以执行, 但是返回空值
 	fmt.Println(<-ints)
+}
+
+// 定时器实例
+func testTimer() {
+	timer1 := time.NewTimer(time.Second * 2)
+	<-timer1.C
+	fmt.Println("Timer 1 expired")
+
+	timer2 := time.NewTimer(time.Second)
+	go func() {
+		<-timer2.C
+		fmt.Println("Timer 2 expired")
+	}()
+	stop := timer2.Stop()
+	if stop {
+		fmt.Println("Timer 2 stopped")
+	}
+}
+
+// 断续器实例 tickers是用于定期做一些事情 周期性执行直到停止
+func testTicker() {
+	ticker := time.NewTicker(time.Second)
+	go func() {
+		for t := range ticker.C {
+			fmt.Println("Tick at", t)
+		}
+	}()
+	time.Sleep(time.Second * 4)
+	ticker.Stop()
+	fmt.Println("Ticker stopped")
+}
+
+// 测试通过range 一个通道进行循环, 是否依然阻塞循环
+func testChanRange2() {
+	c1 := make(chan int, 1)
+	done := make(chan bool)
+	go func() {
+		for i := 0; i < 4; i++ {
+			time.Sleep(time.Second * 2)
+			c1 <- i
+		}
+		close(c1)
+		time.Sleep(time.Millisecond)
+		done <- true
+	}()
+
+	go func() {
+		for v := range c1 {
+			fmt.Println("current is", v)
+		}
+	}()
+	<-done
 }
